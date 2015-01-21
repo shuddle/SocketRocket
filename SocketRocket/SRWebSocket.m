@@ -473,7 +473,7 @@ static __strong NSData *CRLFCRLF;
     }
 
     [self _performDelegateBlock:^{
-        if ([self.delegate respondsToSelector:@selector(webSocketDidOpen:)]) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(webSocketDidOpen:)]) {
             [self.delegate webSocketDidOpen:self];
         };
     }];
@@ -751,7 +751,7 @@ static __strong NSData *CRLFCRLF;
 {
     SRFastLog(@"Received pong");
     [self _performDelegateBlock:^{
-        if ([self.delegate respondsToSelector:@selector(webSocket:didReceivePong:)]) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(webSocket:didReceivePong:)]) {
             [self.delegate webSocket:self didReceivePong:pongData];
         }
     }];
@@ -761,7 +761,8 @@ static __strong NSData *CRLFCRLF;
 {
     SRFastLog(@"Received message");
     [self _performDelegateBlock:^{
-        [self.delegate webSocket:self didReceiveMessage:message];
+        if(self.delegate)
+            [self.delegate webSocket:self didReceiveMessage:message];
     }];
 }
 
@@ -1112,7 +1113,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
         
         if (!_failed) {
             [self _performDelegateBlock:^{
-                if ([self.delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)]) {
+                if (self.delegate && [self.delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)]) {
                     [self.delegate webSocket:self didCloseWithCode:_closeCode reason:_closeReason wasClean:YES];
                 }
             }];
@@ -1460,7 +1461,7 @@ static const size_t SRFrameHeaderOverhead = 32;
                         _sentClose = YES;
                         // If we get closed in this state it's probably not clean because we should be sending this when we send messages
                         [self _performDelegateBlock:^{
-                            if ([self.delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)]) {
+                            if (self.delegate && [self.delegate respondsToSelector:@selector(webSocket:didCloseWithCode:reason:wasClean:)]) {
                                 [self.delegate webSocket:self didCloseWithCode:SRStatusCodeGoingAway reason:@"Stream end encountered" wasClean:NO];
                             }
                         }];
